@@ -1,0 +1,46 @@
+name: "QA Boutique PR Risk Scanner"
+description: "Read-only PR risk scanner that detects risky areas and suggests QA checks before merge."
+author: "QA Boutique"
+
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  github-token:
+    description: "GitHub token used to read pull request files."
+    required: true
+
+  min-risk:
+    description: "Minimum risk level to show: low, medium, or high."
+    required: false
+    default: "low"
+
+  include-low-risk:
+    description: "Show low-risk findings in the summary."
+    required: false
+    default: "false"
+
+  fail-on-high-risk:
+    description: "Fail the workflow if high risk is detected."
+    required: false
+    default: "false"
+
+  free-audit-url:
+    description: "URL for deeper QA Boutique PR audit."
+    required: false
+    default: "https://qaboutique.com/free-pr-audit"
+
+outputs:
+  overall-risk:
+    description: "Overall PR risk level: low, medium, or high."
+
+  risk-score:
+    description: "Numeric risk score."
+
+  risk-areas:
+    description: "Comma-separated list of detected risk areas."
+
+runs:
+  using: "node24"
+  main: "dist/index.js"

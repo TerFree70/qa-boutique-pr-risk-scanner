@@ -1,0 +1,29 @@
+{
+  "name": "qa-boutique-pr-risk-scanner",
+  "version": "1.0.0",
+  "description": "Read-only GitHub Action that detects risky PR areas and suggests QA checks before merge.",
+  "main": "index.js",
+  "scripts": {
+    "check": "node --check index.js",
+    "build": "ncc build index.js -o dist",
+    "prepare-release": "npm run check && npm run build"
+  },
+  "keywords": [
+    "github-action",
+    "pull-request",
+    "qa",
+    "testing",
+    "playwright",
+    "risk-scanner",
+    "code-review"
+  ],
+  "author": "QA Boutique",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.3"
+  }
+}

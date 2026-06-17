@@ -154,14 +154,16 @@ const RISK_RULES = [
     title: 'Tests / CI',
     level: 'medium',
     filePatterns: [
-      /test/i,
-      /tests/i,
-      /spec/i,
+      /(^|\/)__tests__(\/|$)/i,
+      /(^|\/)tests?(\/|$)/i,
+      /(^|\/)specs?(\/|$)/i,
+      /\.(test|spec)\.[jt]sx?$/i,
       /playwright/i,
       /cypress/i,
       /e2e/i,
       /\.github\/workflows/i,
-      /ci/i
+      /(^|\/)ci(\/|$)/i,
+      /ci\.ya?ml$/i
     ],
     diffKeywords: [
       'test',
@@ -240,13 +242,16 @@ function getOverallRisk(score) {
 
 function isTestFile(filename) {
   return [
-    /test/i,
-    /tests/i,
-    /spec/i,
+    /(^|\/)__tests__(\/|$)/i,
+    /(^|\/)tests?(\/|$)/i,
+    /(^|\/)specs?(\/|$)/i,
+    /\.(test|spec)\.[jt]sx?$/i,
     /playwright/i,
     /cypress/i,
     /e2e/i,
-    /\.github\/workflows/i
+    /\.github\/workflows/i,
+    /(^|\/)ci(\/|$)/i,
+    /ci\.ya?ml$/i
   ].some((pattern) => pattern.test(filename));
 }
 
@@ -426,7 +431,7 @@ async function run() {
     const minRisk = normalizeRiskLevel(core.getInput('min-risk') || 'low');
     const includeLowRisk = core.getInput('include-low-risk') === 'true';
     const failOnHighRisk = core.getInput('fail-on-high-risk') === 'true';
-    const freeAuditUrl = core.getInput('free-audit-url') || 'https://qaboutique.com/free-pr-audit';
+    const freeAuditUrl = core.getInput('free-audit-url') || 'https://qaboutique.com/#free-pr-audit';
 
     const context = github.context;
     const pullRequest = context.payload.pull_request;

@@ -1,0 +1,25 @@
+name: PR Risk Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-risk-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run QA Boutique PR Risk Scanner
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          min-risk: low
+          include-low-risk: "true"
+          fail-on-high-risk: "false"

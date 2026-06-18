@@ -153,15 +153,18 @@ const RISK_RULES = [
     id: 'tests-ci',
     title: 'Tests / CI',
     level: 'medium',
+    matchDiffKeywords: false,
     filePatterns: [
-      /test/i,
-      /tests/i,
-      /spec/i,
+      /(^|\/)__tests__(\/|$)/i,
+      /(^|\/)tests?(\/|$)/i,
+      /(^|\/)specs?(\/|$)/i,
+      /\.(test|spec)\.[jt]sx?$/i,
       /playwright/i,
       /cypress/i,
       /e2e/i,
       /\.github\/workflows/i,
-      /ci/i
+      /(^|\/)ci(\/|$)/i,
+      /ci\.ya?ml$/i
     ],
     diffKeywords: [
       'test',
@@ -240,13 +243,16 @@ function getOverallRisk(score) {
 
 function isTestFile(filename) {
   return [
-    /test/i,
-    /tests/i,
-    /spec/i,
+    /(^|\/)__tests__(\/|$)/i,
+    /(^|\/)tests?(\/|$)/i,
+    /(^|\/)specs?(\/|$)/i,
+    /\.(test|spec)\.[jt]sx?$/i,
     /playwright/i,
     /cypress/i,
     /e2e/i,
-    /\.github\/workflows/i
+    /\.github\/workflows/i,
+    /(^|\/)ci(\/|$)/i,
+    /ci\.ya?ml$/i
   ].some((pattern) => pattern.test(filename));
 }
 
@@ -261,19 +267,37 @@ function includesKeyword(text, keyword) {
   return text.toLowerCase().includes(keyword.toLowerCase());
 }
 
-function analyzeFiles(files) {
-  const findings = [];
-  const changedTestFiles = files.filter((file) => isTestFile(file.filename));
-  const changedProductionFiles = files.filter((file) => isProductionFile(file.filename));
+const IGNORED_FILE_PATTERNS = [
+  /^dist\//i,
+  /^build\//i,
+  /^coverage\//i,
+  /^node_modules\//i,
+  /^\.next\//i,
+  /^out\//i,
+  /\.min\.js$/i
+];
 
+function isIgnoredFile(filename) {
+  return IGNORED_FILE_PATTERNS.some((pattern) => pattern.test(filename));
+}
+
+function analyzeFiles(files) {
+  const scannableFiles = files.filter((file) => !isIgnoredFile(file.filename));
+
+  const findings = [];
+  const changedTestFiles = scannableFiles.filter((file) => isTestFile(file.filename));
+  const changedProductionFiles = scannableFiles.filter((file) => isProductionFile(file.filename));
+  
   for (const rule of RISK_RULES) {
     const matchedFiles = [];
 
-    for (const file of files) {
+    for (const file of scannableFiles) {
       const filename = file.filename || '';
       const patch = file.patch || '';
       const fileMatched = rule.filePatterns.some((pattern) => pattern.test(filename));
-      const diffMatched = rule.diffKeywords.some((keyword) => includesKeyword(patch, keyword));
+      const diffMatched =
+        rule.matchDiffKeywords !== false &&
+        rule.diffKeywords.some((keyword) => includesKeyword(patch, keyword));
 
       if (fileMatched || diffMatched) {
         matchedFiles.push({
@@ -426,7 +450,7 @@ async function run() {
     const minRisk = normalizeRiskLevel(core.getInput('min-risk') || 'low');
     const includeLowRisk = core.getInput('include-low-risk') === 'true';
     const failOnHighRisk = core.getInput('fail-on-high-risk') === 'true';
-    const freeAuditUrl = core.getInput('free-audit-url') || 'https://qaboutique.com/free-pr-audit';
+    const freeAuditUrl = core.getInput('free-audit-url') || 'https://qaboutique.com/#free-pr-audit';
 
     const context = github.context;
     const pullRequest = context.payload.pull_request;

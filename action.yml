@@ -29,7 +29,7 @@ inputs:
   free-audit-url:
     description: "URL for deeper QA Boutique PR audit."
     required: false
-    default: "https://qaboutique.com/free-pr-audit"
+    default: "https://qaboutique.com/#free-pr-audit"
 
 outputs:
   overall-risk:

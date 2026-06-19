@@ -49,6 +49,33 @@ Examples:
 * Auth middleware changed, but role-based access was not verified
 * API route changed, but validation and error states were not covered
 
+## Use cases
+
+Use this action when you want to:
+
+- Add a lightweight pull request review checklist
+- Detect risky PR areas before merge
+- Highlight billing, pricing, checkout, auth, permission, and API changes
+- Warn reviewers when production files change without related tests
+- Improve regression testing awareness
+- Give reviewers a clearer QA checklist for business-critical changes
+
+This is especially useful for SaaS and web application teams where small pull request changes can affect important user flows such as:
+
+- checkout
+- subscription plans
+- pricing logic
+- role-based access
+- authentication
+- onboarding
+- workspace settings
+- API routes
+- webhooks
+
+The action is not intended to replace code review or automated tests.
+
+It is designed to make risky PRs easier to notice.
+
 ## Security and privacy
 
 This action is intentionally simple and safe by default.
@@ -140,6 +167,16 @@ This action does not perform deep semantic code review.
 It will not guarantee that a PR is safe or unsafe. It is a lightweight PR risk checklist generator.
 
 For deeper AI-powered analysis of actual PR logic, use QA Boutique.
+
+## Demo case
+
+A public demo repository is available here:
+
+https://github.com/TerFree70/qa-boutique-demo-checkout-risk
+
+The demo shows a pull request that adds checkout logic with pricing risks.
+
+The free GitHub Action flags the PR as high risk, and QA Boutique AI review then identifies concrete business-logic issues such as hardcoded plan, price, discount, missing request parsing, and missing validation.
 
 ## Deeper AI PR audit
 

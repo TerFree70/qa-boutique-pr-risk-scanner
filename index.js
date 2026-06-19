@@ -219,6 +219,70 @@ const RISK_RULES = [
   }
 ];
 
+const REVIEWER_CHECKLISTS = {
+  'billing-pricing': [
+    'Verify selected plan is persisted and used by the backend.',
+    'Verify final price is calculated server-side, not trusted from the client.',
+    'Verify discounts, coupons, and trial logic are validated server-side.',
+    'Verify checkout cannot be manipulated through URL/query parameters.',
+    'Verify regression tests cover at least one non-default plan or pricing path.'
+  ],
+
+  'auth-access-control': [
+    'Verify unauthenticated users cannot access protected routes.',
+    'Verify users cannot access resources from another account/workspace.',
+    'Verify role-based permissions are enforced on the backend.',
+    'Verify expired or invalid sessions return the correct 401/403 response.',
+    'Verify regression tests cover at least one negative permission case.'
+  ],
+
+  'critical-user-flow': [
+    'Verify the full user flow completes, not only that a success message appears.',
+    'Verify the expected backend state changes after the flow.',
+    'Verify error states are covered, not only the happy path.',
+    'Verify important UI assertions are backed by business outcome assertions.',
+    'Verify the flow is covered by at least one regression test.'
+  ],
+
+  'api-backend': [
+    'Verify request body parsing and parameter validation.',
+    'Verify invalid input returns a safe error response.',
+    'Verify backend logic does not rely on user-controlled values.',
+    'Verify API response shape is covered by tests.',
+    'Verify side effects such as database writes, jobs, or webhooks are tested.'
+  ],
+
+  'tests-ci': [
+    'Verify changed production behavior has related regression coverage.',
+    'Verify new E2E tests assert business outcomes, not only UI notifications.',
+    'Verify tests cover negative/error cases where applicable.',
+    'Verify flaky or timing-sensitive assertions are avoided.',
+    'Verify CI changes do not hide failures or make tests non-blocking unintentionally.'
+  ],
+
+  'config-env-deploy': [
+    'Verify environment variables and secrets are documented.',
+    'Verify default/fallback values are safe.',
+    'Verify deployment config changes do not affect production unexpectedly.',
+    'Verify CI/CD changes are tested in a non-production environment.',
+    'Verify rollback or failure behavior is understood.'
+  ]
+};
+
+function getReviewerChecklist(riskAreas = []) {
+  const items = [];
+
+  for (const area of riskAreas) {
+    const checklist = REVIEWER_CHECKLISTS[area.id] || [];
+
+    for (const item of checklist) {
+      items.push(item);
+    }
+  }
+
+  return [...new Set(items)].slice(0, 12);
+}
+
 function normalizeRiskLevel(value) {
   const normalized = String(value || '').trim().toLowerCase();
 
@@ -406,6 +470,19 @@ function renderSummary({ owner, repo, pullNumber, files, analysis, visibleFindin
 
       markdown += '\n';
     }
+  }
+
+  const reviewerChecklist = getReviewerChecklist(visibleFindings);
+
+  if (reviewerChecklist.length > 0) {
+    markdown += '## Reviewer checklist\n\n';
+    markdown += 'Use this as a lightweight review checklist before merge.\n\n';
+
+    for (const item of reviewerChecklist) {
+      markdown += `- [ ] ${item}\n`;
+    }
+
+    markdown += '\n';
   }
 
   markdown += '## Test coverage signal\n\n';
